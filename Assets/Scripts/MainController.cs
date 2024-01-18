@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -29,7 +28,7 @@ public class MainController : MonoBehaviour
     public GameObject animationControlUI;
     public Vector3 targetScale;
     public Sprite[] sprites;
-    private bool playAnimationFlag = false;
+    private Button currentActionControlButton;
     private bool pauseAnimationFlag = false;
     private bool resetButtonFlag = true;
     private Quaternion originalRotation;
@@ -39,7 +38,8 @@ public class MainController : MonoBehaviour
 
     private List<UnityAction> buttonActionListeners = new List<UnityAction>();
 
-    void OnEnable(){
+    void OnEnable()
+    {
         originalRotation = animatedButton.transform.rotation;
         originalScale = animatedButton.transform.localScale;
         originalSprite = animatedButton.GetComponent<Image>().sprite;
@@ -82,43 +82,27 @@ public class MainController : MonoBehaviour
 
         if (button.gameObject.tag == "Action Control Button")
         {
+            currentActionControlButton = button;
             ActiveUI(animationControlUI);
             resetButtonFlag = true;
             ResetButtonState();
-            
-            switch (button.name)
-            {
-                case "Scale Button":
-                    StartCoroutine(ScaleCoroutine(animatedButton, targetScale));
-                    break;
-                case "Random Sprite Button":
-                    StartCoroutine(ChangeSpriteCoroutine(animatedButton, sprites));
-                    break;
-                case "Jump Button":
-
-                    break;
-                case "Spin Button":
-
-                    break;
-                case "Fade Button":
-
-                    break;
-            }
         }
         else if (button.gameObject.tag == "Animation Control Button")
         {
             switch (button.name)
             {
                 case "Play Button":
-
+                    resetButtonFlag = true;
+                    pauseAnimationFlag = false;
+                    StartCoroutine(RunAnimationCoroutine());
                     break;
                 case "Pause/Resume Button":
-
+                pauseAnimationFlag = true;
                     break;
                 case "Reset Button":
                     ResetButtonState();
                     resetButtonFlag = false;
-                    
+
                     break;
             }
         }
@@ -156,9 +140,27 @@ public class MainController : MonoBehaviour
         buttonActionListeners.Clear();
     }
 
+
     IEnumerator RunAnimationCoroutine()
     {
-        yield return new WaitUntil(() => playAnimationFlag == true);
+        Debug.Log(currentActionControlButton.name + " animation is playing");
+        switch (currentActionControlButton.name)
+        {
+            case "Scale Button":
+                StartCoroutine(ScaleCoroutine(animatedButton, targetScale));
+                break;
+            case "Random Sprite Button":
+                StartCoroutine(ChangeSpriteCoroutine(animatedButton, sprites));
+                break;
+            case "Jump Button":
+                break;
+            case "Spin Button":
+                break;
+            case "Fade Button":
+                break;
+
+        }
+        yield return null;
     }
 
     IEnumerator PauseAnimationCoroutine()
